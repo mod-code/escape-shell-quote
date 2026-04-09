@@ -30,6 +30,7 @@
     "bash",
     "powershell",
     "cmd",
+    "fish",
     "windows",
     "command-line",
     "cli"

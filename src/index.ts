@@ -1,7 +1,7 @@
 /**
  * Shell types supported for quoting and escaping
  */
-export type ShellType = 'bash' | 'powershell' | 'cmd';
+export type ShellType = 'bash' | 'powershell' | 'cmd' | 'fish';
 
 /**
  * Quote style options
@@ -136,6 +136,48 @@ function escapeCmd(str: string, quoteStyle: QuoteStyle = 'auto'): string {
 }
 
 /**
+ * Escapes special characters in a string for Fish shell
+ * @param str - The string to escape
+ * @param quoteStyle - The quote style to use
+ * @returns The escaped and quoted string
+ */
+function escapeFish(str: string, quoteStyle: QuoteStyle = 'auto'): string {
+  // Fish uses single quotes for literal strings (no escaping needed except for single quote itself)
+  // Fish uses double quotes for variable expansion
+  // Fish doesn't support backslash escapes in single quotes
+  // Fish uses \x, \X for escape sequences in double quotes
+  
+  if (quoteStyle === 'auto') {
+    // Use single quotes if string doesn't contain them (safest option)
+    if (!str.includes("'")) {
+      quoteStyle = 'single';
+    } else {
+      quoteStyle = 'double';
+    }
+  }
+
+  if (quoteStyle === 'single') {
+    // Single quotes in Fish are fully literal
+    // To include a single quote, end the single-quoted string, add escaped quote, start new single-quoted string
+    if (str.includes("'")) {
+      const escaped = str.replace(/'/g, "\\'");
+      return `'${escaped}'`;
+    }
+    return `'${str}'`;
+  } else {
+    // Double quotes: escape special characters
+    let escaped = str;
+    // Escape backslashes
+    escaped = escaped.replace(/\\/g, '\\\\');
+    // Escape double quotes
+    escaped = escaped.replace(/"/g, '\\"');
+    // Escape dollar signs (variable expansion in Fish)
+    escaped = escaped.replace(/\$/g, '\\$');
+    return `"${escaped}"`;
+  }
+}
+
+/**
  * Quotes and escapes a string for the specified shell
  * @param str - The string to quote
  * @param options - Options for quoting
@@ -160,6 +202,8 @@ export function quote(str: string, options: QuoteOptions = {}): string {
       return escapePowerShell(str, style);
     case 'cmd':
       return escapeCmd(str, style);
+    case 'fish':
+      return escapeFish(str, style);
     default:
       throw new Error(`Unsupported shell type: ${shell}`);
   }
@@ -220,6 +264,22 @@ export function escapeCmdRaw(str: string): string {
 }
 
 /**
+ * Escapes a string for use in a Fish shell (without adding quotes)
+ * @param str - The string to escape
+ * @returns The escaped string
+ */
+export function escapeFishRaw(str: string): string {
+  let escaped = str;
+  // Escape backslashes
+  escaped = escaped.replace(/\\/g, '\\\\');
+  // Escape spaces
+  escaped = escaped.replace(/ /g, '\\ ');
+  // Escape other special characters (Fish has different special chars than bash)
+  escaped = escaped.replace(/[&|;()<>$"'\n\r]/g, '\\$&');
+  return escaped;
+}
+
+/**
  * Escapes a string for the specified shell (without adding quotes)
  * @param str - The string to escape
  * @param shell - The shell type
@@ -233,6 +293,8 @@ export function escape(str: string, shell: ShellType = 'bash'): string {
       return escapePowerShellRaw(str);
     case 'cmd':
       return escapeCmdRaw(str);
+    case 'fish':
+      return escapeFishRaw(str);
     default:
       throw new Error(`Unsupported shell type: ${shell}`);
   }

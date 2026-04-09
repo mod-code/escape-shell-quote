@@ -1,6 +1,6 @@
 # shell-quote-escape
 
-A TypeScript library for quoting and escaping strings for bash, PowerShell, and Windows CMD shells.
+A TypeScript library for quoting and escaping strings for bash, PowerShell, Windows CMD, and Fish shells.
 
 ## Installation
 
@@ -25,7 +25,7 @@ Quotes and escapes a string for the specified shell.
 **Parameters:**
 - `str` (string): The string to quote
 - `options` (object, optional):
-  - `shell` ('bash' | 'powershell' | 'cmd'): The shell type (default: 'bash')
+  - `shell` ('bash' | 'powershell' | 'cmd' | 'fish'): The shell type (default: 'bash')
   - `style` ('single' | 'double' | 'auto'): The quote style (default: 'auto')
   - `force` (boolean): Force quoting even if not necessary (default: false)
 
@@ -47,6 +47,10 @@ quote("it's", { shell: 'powershell' });         // "it's"
 // CMD
 quote('hello world', { shell: 'cmd' });  // "hello world"
 quote('foo&bar', { shell: 'cmd' });      // "foo^&bar"
+
+// Fish
+quote('hello world', { shell: 'fish' }); // 'hello world'
+quote("it's", { shell: 'fish' });        // "it's"
 ```
 
 ### `quoteArgs(args, options?)`
@@ -73,7 +77,7 @@ Escapes a string for the specified shell without adding quotes.
 
 **Parameters:**
 - `str` (string): The string to escape
-- `shell` ('bash' | 'powershell' | 'cmd'): The shell type (default: 'bash')
+- `shell` ('bash' | 'powershell' | 'cmd' | 'fish'): The shell type (default: 'bash')
 
 **Returns:** The escaped string
 
@@ -101,6 +105,11 @@ escape('hello & world', 'cmd');           // hello ^& world
 ### CMD
 - Uses double quotes
 - Escapes: `^`, `&`, `|`, `>`, `<`, `%`, `!`
+
+### Fish
+- Uses single quotes by default (fully literal strings)
+- For strings containing single quotes, uses double quotes with escaping
+- Escapes: `\`, `"`, `$`
 
 ## License
 
