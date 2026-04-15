@@ -1,7 +1,11 @@
 {
   "name": "shell-quote-escape",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "A TypeScript library for quoting and escaping strings for bash, PowerShell, and Windows CMD shells",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mod-code/escape-shell-quote.git"
+  },
   "main": "./dist/index.js",
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
